@@ -1,0 +1,78 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
+    }
+}
+apply plugin: 'bintray'
+
+apply plugin: 'groovy'
+apply plugin: 'maven-publish'
+
+group 'no.rundis.gradle'
+version '0.0.1'
+
+
+dependencies {
+    compile gradleApi()
+}
+
+/*publishing {
+    repositories {
+        ivy { url 'build/repo' }
+    }
+    publications {
+        ivy(IvyPublication) {
+            from components.java
+        }
+    }
+}*/
+
+task sourceJar(type: Jar) {
+      description "An archive of the source code for Maven Central"
+      classifier "sources"
+      from sourceSets.main.allSource
+}
+
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+        }
+
+    }
+    repositories {
+        maven {
+            url "https://api.bintray.com/maven/rundis/maven/generic-gradle-model"
+            credentials {
+                username = bintray_username
+                password = bintray_api_key
+            }
+        }
+    }
+}
+
+
+bintray {
+    user = hasProperty('bintray_username') ? bintray_username : ''
+    key = hasProperty('bintray_api_key') ? bintray_api_key : ''
+    configurations = ['archives']
+    publications = ['mavenJava']
+    pkg {
+        repo = 'maven'
+        userOrg = 'rundis' // an optional organization name when the repo belongs to one of the user's orgs
+        name = 'generic-gradle-model'
+        desc = 'Generic gradle model for tooling api'
+        licenses = ['GPL']
+        //labels = ['gear', 'gore', 'gorilla']
+    }
+    //dryRun = true // whether to run this as dry-run, without deploying
+}
