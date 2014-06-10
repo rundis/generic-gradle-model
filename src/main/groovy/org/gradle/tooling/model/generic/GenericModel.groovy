@@ -4,5 +4,10 @@ import org.gradle.tooling.model.Model
 
 public interface GenericModel extends Model {
 
-    List<Map> getDependencies()
+    Map getRootDependencies()
+
+    List<Map> getSubprojectDependencies()
+
+
+    Map<String, List<String>> getClasspaths()
 }
